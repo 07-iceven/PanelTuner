@@ -1,0 +1,148 @@
+<Window x:Class="PanelTuner.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        mc:Ignorable="d"
+        Title="Panel Tuner"
+        Height="760"
+        Width="960"
+        MinHeight="700"
+        MinWidth="860"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel>
+                <TextBlock FontSize="28" FontWeight="SemiBold" Text="Panel Tuner" />
+                <TextBlock Margin="0,6,0,0"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}">
+                    <Hyperlink Click="GitHubLink_Click"
+                               ToolTip="打开 GitHub 项目">
+                        GitHub: 07-iceven/PanelTuner
+                    </Hyperlink>
+                </TextBlock>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1"
+                        HorizontalAlignment="Right"
+                        Orientation="Horizontal"
+                        VerticalAlignment="Center">
+                <Button Width="120"
+                        Margin="0,0,12,0"
+                        Click="UnlockButton_Click"
+                        Content="管理员解锁" />
+                <Button Width="120"
+                        Margin="0,0,12,0"
+                        Click="LockButton_Click"
+                        Content="重新锁定" />
+                <Button Width="120"
+                        Click="ChangePasswordButton_Click"
+                        Content="修改密码" />
+            </StackPanel>
+        </Grid>
+
+        <Border Grid.Row="1"
+                Margin="0,20,0,20"
+                Padding="16"
+                Background="{DynamicResource ControlFillColorSecondaryBrush}"
+                CornerRadius="12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <TextBlock x:Name="StateTextBlock" FontSize="16" FontWeight="SemiBold" Text="当前为只读模式" />
+                    <TextBlock x:Name="HintTextBlock"
+                               Margin="0,6,0,0"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                               Text="请输入管理员密码后再修改设置。" />
+                </StackPanel>
+
+                <Button Grid.Column="1"
+                        Width="140"
+                        Click="SaveButton_Click"
+                        Content="保存并立即应用" />
+            </Grid>
+        </Border>
+
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <StackPanel x:Name="SettingsPanel">
+                <ui:Card Margin="0,0,0,16" Padding="20">
+                    <StackPanel>
+                        <TextBlock FontSize="20" FontWeight="SemiBold" Text="默认麦克风音量锁定" />
+                        <TextBlock Margin="0,8,0,16"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                   Text="应用运行期间会持续检查默认录音设备，并把麦克风音量拉回设定值。" />
+
+                        <CheckBox x:Name="MicrophoneLockCheckBox"
+                                  Margin="0,0,0,16"
+                                  Content="启用默认麦克风音量锁定" />
+
+                        <TextBlock Text="目标音量" />
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <Slider x:Name="MicrophoneVolumeSlider"
+                                    Minimum="0"
+                                    Maximum="100"
+                                    TickFrequency="1"
+                                    IsSnapToTickEnabled="True"
+                                    ValueChanged="MicrophoneVolumeSlider_ValueChanged" />
+                            <TextBlock Grid.Column="1"
+                                       Margin="16,0,0,0"
+                                       VerticalAlignment="Center"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       Text="{Binding ElementName=MicrophoneVolumeSlider, Path=Value, StringFormat={}{0:F0}%}" />
+                        </Grid>
+
+                        <TextBlock Margin="0,16,0,0" Text="检查间隔" />
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox x:Name="MicrophoneCheckIntervalTextBox"
+                                     Height="36"
+                                     VerticalContentAlignment="Center" />
+                            <TextBlock Grid.Column="1"
+                                       Margin="12,0,0,0"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                       Text="秒（1 - 60）" />
+                        </Grid>
+                    </StackPanel>
+                </ui:Card>
+
+                <ui:Card Padding="20">
+                    <StackPanel>
+                        <TextBlock FontSize="20" FontWeight="SemiBold" Text="启动方式" />
+                        <TextBlock Margin="0,8,0,16"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                   Text="启用后会在用户登录 Windows 时自动启动，并直接隐藏到系统托盘，确保音量锁定持续生效。" />
+                        <CheckBox x:Name="AutoStartCheckBox"
+                                  Content="开机自启动" />
+                    </StackPanel>
+                </ui:Card>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window>
