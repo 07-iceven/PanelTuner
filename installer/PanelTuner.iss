@@ -7,7 +7,7 @@
 #endif
 
 #ifndef MyAppVersion
-#define MyAppVersion "0.1"
+#define MyAppVersion "0.2"
 #endif
 
 #ifndef MyAppPublishDir
@@ -32,7 +32,7 @@ SolidCompression=yes
 WizardStyle=modern
 DisableProgramGroupPage=yes
 OutputDir=..\dist\installer
-OutputBaseFilename=PanelTuner-Setup
+OutputBaseFilename=PanelTuner-Setup-v{#MyAppVersion}
 SetupLogging=yes
 
 [Languages]
