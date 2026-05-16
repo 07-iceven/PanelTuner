@@ -14,7 +14,6 @@ public partial class MainWindow : Window
 {
     private const string GitHubUrl = "https://github.com/07-iceven/PanelTuner";
     private readonly AppSettings _settings;
-    private readonly SettingsService _settingsService;
     private readonly AudioLockService _audioLockService;
     private readonly StartupService _startupService;
     private readonly Forms.NotifyIcon _notifyIcon;
@@ -24,14 +23,12 @@ public partial class MainWindow : Window
 
     public MainWindow(
         AppSettings settings,
-        SettingsService settingsService,
         AudioLockService audioLockService,
         StartupService startupService)
     {
         InitializeComponent();
 
         _settings = settings;
-        _settingsService = settingsService;
         _audioLockService = audioLockService;
         _startupService = startupService;
         _notifyIcon = InitializeTrayIcon();
@@ -205,7 +202,12 @@ public partial class MainWindow : Window
         }
 
         PasswordService.SetPassword(_settings, dialog.EnteredPassword);
-        _settingsService.Save(_settings);
+        if (!SettingsService.TrySave(_settings, out var saveError))
+        {
+            WpfMessageBox.Show(this, saveError, "保存失败", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
         WpfMessageBox.Show(this, "管理员密码已成功修改。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 
@@ -228,9 +230,25 @@ public partial class MainWindow : Window
         _settings.Microphone.CheckIntervalSeconds = interval;
         _settings.AutoStartEnabled = AutoStartCheckBox.IsChecked ?? false;
 
-        _settingsService.Save(_settings);
+        if (!SettingsService.TrySave(_settings, out var saveError))
+        {
+            WpfMessageBox.Show(this, saveError, "保存失败", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
         _audioLockService.UpdateSettings(_settings);
-        _startupService.Apply(_settings);
+        var startupResult = _startupService.Apply(_settings);
+
+        if (!startupResult.Succeeded)
+        {
+            WpfMessageBox.Show(
+                this,
+                $"配置文件已保存，麦克风锁定设置也已应用，但开机自启动设置未能同步到系统。{Environment.NewLine}{startupResult.ErrorMessage}",
+                "部分设置未应用",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return;
+        }
 
         WpfMessageBox.Show(this, "设置已保存并立即应用。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
     }

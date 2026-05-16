@@ -3,34 +3,53 @@ using PanelTuner.Models;
 
 namespace PanelTuner.Services;
 
+public sealed class StartupApplyResult
+{
+    public StartupApplyResult(bool succeeded, string? errorMessage = null)
+    {
+        Succeeded = succeeded;
+        ErrorMessage = errorMessage;
+    }
+
+    public bool Succeeded { get; }
+    public string? ErrorMessage { get; }
+}
+
 public class StartupService
 {
     private const string AppName = "Panel Tuner";
     private const string RunRegistryPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
 
-    public void Apply(AppSettings settings)
+    public StartupApplyResult Apply(AppSettings settings)
     {
         try
         {
             using var key = Registry.CurrentUser.OpenSubKey(RunRegistryPath, true);
-            if (key == null) return;
+            if (key == null)
+            {
+                return new StartupApplyResult(false, "无法打开开机启动注册表项。");
+            }
 
             if (settings.AutoStartEnabled)
             {
                 var exePath = Environment.ProcessPath;
-                if (exePath != null)
+                if (string.IsNullOrWhiteSpace(exePath))
                 {
-                    key.SetValue(AppName, $"\"{exePath}\" --minimized");
+                    return new StartupApplyResult(false, "无法获取当前程序路径，不能设置开机启动。");
                 }
+
+                key.SetValue(AppName, $"\"{exePath}\" --minimized");
             }
             else
             {
                 key.DeleteValue(AppName, false);
             }
+
+            return new StartupApplyResult(true);
         }
-        catch
+        catch (Exception ex)
         {
-            // Ignore registry access errors
+            return new StartupApplyResult(false, $"应用开机自启动设置失败：{ex.Message}");
         }
     }
 }
