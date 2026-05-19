@@ -12,6 +12,13 @@ public partial class App : System.Windows.Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
+        // Global exception handling
+        DispatcherUnhandledException += (s, args) =>
+        {
+            WpfMessageBox.Show($"程序发生未处理的错误：{args.Exception.Message}", "严重错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            args.Handled = true;
+        };
+
         base.OnStartup(e);
 
         var loadResult = SettingsService.Load();

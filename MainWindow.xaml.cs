@@ -49,9 +49,12 @@ public partial class MainWindow : Window
     {
         MicrophoneLockCheckBox.IsChecked = _settings.Microphone.LockEnabled;
         MicrophoneVolumeSlider.Value = Math.Clamp(_settings.Microphone.VolumePercent, 0, 100);
-        MicrophoneCheckIntervalTextBox.Text = AudioLockService.NormalizeCheckIntervalSeconds(
-            _settings.Microphone.CheckIntervalSeconds).ToString();
+        MicrophoneCheckIntervalTextBox.Text = AudioLockService.NormalizeCheckIntervalTicks(
+            _settings.Microphone.CheckIntervalTicks).ToString();
         AutoStartCheckBox.IsChecked = _settings.AutoStartEnabled;
+        TimeRestrictionCheckBox.IsChecked = _settings.Microphone.TimeRestrictionEnabled;
+        StartTimeTextBox.Text = _settings.Microphone.StartTime;
+        EndTimeTextBox.Text = _settings.Microphone.EndTime;
     }
 
     private void ApplyEditMode()
@@ -219,15 +222,28 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (!int.TryParse(MicrophoneCheckIntervalTextBox.Text, out int interval))
+        if (!int.TryParse(MicrophoneCheckIntervalTextBox.Text, out int ticks))
         {
-            WpfMessageBox.Show(this, "检查间隔必须是有效的数字。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+            WpfMessageBox.Show(this, "检查间隔必须是有效的数字（Ticks）。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
+        }
+
+        // Simple time format validation
+        if (TimeRestrictionCheckBox.IsChecked == true)
+        {
+            if (!TimeSpan.TryParse(StartTimeTextBox.Text, out _) || !TimeSpan.TryParse(EndTimeTextBox.Text, out _))
+            {
+                WpfMessageBox.Show(this, "时间格式无效，请输入正确的 HH:mm 格式。", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
         }
 
         _settings.Microphone.LockEnabled = MicrophoneLockCheckBox.IsChecked ?? false;
         _settings.Microphone.VolumePercent = (int)MicrophoneVolumeSlider.Value;
-        _settings.Microphone.CheckIntervalSeconds = interval;
+        _settings.Microphone.CheckIntervalTicks = ticks;
+        _settings.Microphone.TimeRestrictionEnabled = TimeRestrictionCheckBox.IsChecked ?? false;
+        _settings.Microphone.StartTime = StartTimeTextBox.Text;
+        _settings.Microphone.EndTime = EndTimeTextBox.Text;
         _settings.AutoStartEnabled = AutoStartCheckBox.IsChecked ?? false;
 
         if (!SettingsService.TrySave(_settings, out var saveError))

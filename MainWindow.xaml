@@ -92,7 +92,6 @@
                                   Margin="0,0,0,16"
                                   Content="启用默认麦克风音量锁定" />
 
-                        <TextBlock Text="目标音量" />
                         <Grid Margin="0,8,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -113,8 +112,7 @@
                                        Text="{Binding ElementName=MicrophoneVolumeSlider, Path=Value, StringFormat={}{0:F0}%}" />
                         </Grid>
 
-                        <TextBlock Margin="0,16,0,0" Text="检查间隔" />
-                        <Grid Margin="0,8,0,0">
+                        <Grid Margin="0,16,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="200" />
                                 <ColumnDefinition Width="Auto" />
@@ -127,17 +125,46 @@
                                        Margin="12,0,0,0"
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                                       Text="秒（1 - 60）" />
+                                       Text="Ticks (1 - 1000)" />
                         </Grid>
+
+                        <TextBlock Margin="0,16,0,0" Text="时间限定锁定" />
+                        <ui:Card Margin="0,8,0,0" Padding="12">
+                            <StackPanel>
+                                <CheckBox x:Name="TimeRestrictionCheckBox"
+                                          Content="仅在指定时间范围内锁定" />
+                                <Grid Margin="0,8,0,0" IsEnabled="{Binding ElementName=TimeRestrictionCheckBox, Path=IsChecked}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="120" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="120" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock VerticalAlignment="Center" Text="开始时间：" />
+                                    <ui:TextBox x:Name="StartTimeTextBox"
+                                             Grid.Column="1"
+                                             PlaceholderText="00:00" />
+
+                                    <TextBlock Grid.Column="2"
+                                               Margin="20,0,10,0"
+                                               VerticalAlignment="Center"
+                                               Text="结束时间：" />
+                                    <ui:TextBox x:Name="EndTimeTextBox"
+                                             Grid.Column="3"
+                                             PlaceholderText="23:59" />
+                                </Grid>
+                                <TextBlock Margin="0,8,0,0"
+                                           FontSize="12"
+                                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                           Text="格式：HH:mm (例如 08:30)。如果结束时间早于开始时间，则视为跨午夜。" />
+                            </StackPanel>
+                        </ui:Card>
                     </StackPanel>
                 </ui:Card>
 
                 <ui:Card Padding="20">
                     <StackPanel>
-                        <TextBlock FontSize="20" FontWeight="SemiBold" Text="启动方式" />
-                        <TextBlock Margin="0,8,0,16"
-                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                                   Text="启用后会在用户登录 Windows 时自动启动，并直接隐藏到系统托盘，确保音量锁定持续生效。" />
                         <CheckBox x:Name="AutoStartCheckBox"
                                   Content="开机自启动" />
                     </StackPanel>
